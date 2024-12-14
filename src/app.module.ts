@@ -3,6 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { OrderModule } from './order/order.module';
+import { CustomerModule } from './customer/customer.module';
+import { SupplierModule } from './supplier/supplier.module';
+import { OrderStatusModule } from './order_status/order_status.module';
 import entities from './entities';
 
 @Module({
@@ -23,6 +27,10 @@ import entities from './entities';
       }),
       inject: [ConfigService],
     }),
+    OrderModule,
+    CustomerModule,
+    SupplierModule,
+    OrderStatusModule,
   ],
   controllers: [AppController],
   providers: [AppService],
