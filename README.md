@@ -39,3 +39,9 @@ Run API project
 ```console
 npm run start
 ```
+
+Using docker
+
+```console
+docker-compose -f api-production.yml up -d --build
+```
