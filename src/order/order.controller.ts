@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  HttpCode,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -16,13 +18,16 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  GetAll(@Query('offset') offset: string, @Query('limit') limit: string) {
+    return this.orderService.GetAll(
+      !isNaN(+offset) ? +offset : null,
+      !isNaN(+limit) ? +limit : null,
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+  getById(@Param('id') id: string) {
+    return this.orderService.getById(id);
   }
 
   @Post()
@@ -31,12 +36,14 @@ export class OrderController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
+  @HttpCode(201)
+  updateById(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return this.orderService.updateById(id, updateOrderDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+  @HttpCode(201)
+  deleteById(@Param('id') id: string) {
+    return this.orderService.deleteById(id);
   }
 }

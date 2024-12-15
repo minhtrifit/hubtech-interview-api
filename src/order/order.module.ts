@@ -4,9 +4,15 @@ import { OrderController } from './order.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { HelpersService } from '@/helpers/helpers.service';
+import { Supplier } from '@/supplier/entities/supplier.entity';
+import { Customer } from '@/customer/entities/customer.entity';
+import { OrderStatus } from '@/order_status/entities/order_status.entity';
+import { Product } from '@/product/entities/product.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order])],
+  imports: [
+    TypeOrmModule.forFeature([Order, Supplier, Customer, OrderStatus, Product]),
+  ],
   controllers: [OrderController],
   providers: [OrderService, HelpersService],
 })
