@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -35,6 +36,7 @@ export class CustomerController {
   }
 
   @Patch(':id')
+  @HttpCode(201)
   updateById(
     @Param('id') id: string,
     @Body() updateCustomerDto: UpdateCustomerDto,
@@ -43,6 +45,7 @@ export class CustomerController {
   }
 
   @Delete(':id')
+  @HttpCode(201)
   deleteById(@Param('id') id: string) {
     return this.customerService.deleteById(id);
   }

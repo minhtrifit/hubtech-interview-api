@@ -1,1 +1,4 @@
-export class CreateOrderStatusDto {}
+export class CreateOrderStatusDto {
+  name: string;
+  code: string;
+}

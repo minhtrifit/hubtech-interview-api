@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 import { SupplierService } from './supplier.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -35,6 +36,7 @@ export class SupplierController {
   }
 
   @Patch(':id')
+  @HttpCode(201)
   updateById(
     @Param('id') id: string,
     @Body() updateSupplierDto: UpdateSupplierDto,
@@ -43,6 +45,7 @@ export class SupplierController {
   }
 
   @Delete(':id')
+  @HttpCode(201)
   deleteById(@Param('id') id: string) {
     return this.supplierService.deleteById(id);
   }
