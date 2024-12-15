@@ -47,7 +47,7 @@ export class OrderService {
       'Get all order successfully',
       {
         orders: resData,
-        total,
+        total: resData?.length,
         offset: skip,
         limit: take,
       },
@@ -56,7 +56,7 @@ export class OrderService {
     );
   }
 
-  async getById(id: string) {
+  async getByOrderId(id: string) {
     const isValidUUID = this.helpersService.isValidUUID(id);
 
     if (!isValidUUID) {
@@ -89,6 +89,94 @@ export class OrderService {
     return this.helpersService.createResponse(
       'Get order by id successfully',
       resData,
+      null,
+      HttpStatusCodes.OK,
+    );
+  }
+
+  async getAllBySupplierId(
+    id: string,
+    offset: number | null,
+    limit: number | null,
+  ) {
+    const isValidUUID = this.helpersService.isValidUUID(id);
+
+    if (!isValidUUID) {
+      throw new BadRequestException(
+        this.helpersService.createResponse(
+          'Not valid id type',
+          null,
+          'Bad request',
+          HttpStatusCodes.BAD_REQUEST,
+        ),
+      );
+    }
+
+    const skip = offset ?? 0;
+    const take = limit ?? (offset !== null ? 1000 : 10);
+
+    const [resData, total] = await this.orderRepository.findAndCount({
+      where: { supplier: { id: id } },
+      skip: skip,
+      take: take,
+      relations: ['supplier', 'customer', 'products', 'status'],
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return this.helpersService.createResponse(
+      'Get all order by supplierId successfully',
+      {
+        orders: resData,
+        total: resData?.length,
+        offset: skip,
+        limit: take,
+      },
+      null,
+      HttpStatusCodes.OK,
+    );
+  }
+
+  async getAllByCustomerId(
+    id: string,
+    offset: number | null,
+    limit: number | null,
+  ) {
+    const isValidUUID = this.helpersService.isValidUUID(id);
+
+    if (!isValidUUID) {
+      throw new BadRequestException(
+        this.helpersService.createResponse(
+          'Not valid id type',
+          null,
+          'Bad request',
+          HttpStatusCodes.BAD_REQUEST,
+        ),
+      );
+    }
+
+    const skip = offset ?? 0;
+    const take = limit ?? (offset !== null ? 1000 : 10);
+
+    const [resData, total] = await this.orderRepository.findAndCount({
+      where: { customer: { id: id } },
+      skip: skip,
+      take: take,
+      relations: ['supplier', 'customer', 'products', 'status'],
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return this.helpersService.createResponse(
+      'Get all order by customer successfully',
+      {
+        orders: resData,
+        total: resData?.length,
+        offset: skip,
+        limit: take,
+      },
       null,
       HttpStatusCodes.OK,
     );

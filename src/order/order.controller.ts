@@ -25,9 +25,35 @@ export class OrderController {
     );
   }
 
-  @Get(':id')
-  getById(@Param('id') id: string) {
-    return this.orderService.getById(id);
+  @Get('/order-id/:id')
+  getByOrderId(@Param('id') id: string) {
+    return this.orderService.getByOrderId(id);
+  }
+
+  @Get('/supplier-id/:id')
+  getAllBySupplierId(
+    @Param('id') id: string,
+    @Query('offset') offset: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.orderService.getAllBySupplierId(
+      id,
+      !isNaN(+offset) ? +offset : null,
+      !isNaN(+limit) ? +limit : null,
+    );
+  }
+
+  @Get('/customer-id/:id')
+  getAllByCustomerId(
+    @Param('id') id: string,
+    @Query('offset') offset: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.orderService.getAllByCustomerId(
+      id,
+      !isNaN(+offset) ? +offset : null,
+      !isNaN(+limit) ? +limit : null,
+    );
   }
 
   @Post()

@@ -36,7 +36,7 @@ export class OrderStatusService {
       'Get all order status successfully',
       {
         order_status: resData,
-        total,
+        total: resData?.length,
         offset: skip,
         limit: take,
       },
@@ -97,6 +97,18 @@ export class OrderStatusService {
       );
     }
 
+    // Check is init value
+    if (this.helpersService.isInitOrderStatus(data.name, data.code)) {
+      throw new ConflictException(
+        this.helpersService.createResponse(
+          `Cannot create init order status: "${data.name}" - "${data.code}".`,
+          null,
+          'Conflict',
+          HttpStatusCodes.CONFLICT,
+        ),
+      );
+    }
+
     // Create new order status
     const orderStatus = this.orderStatusRepository.create(data);
     const resData = await this.orderStatusRepository.save(orderStatus);
@@ -110,7 +122,6 @@ export class OrderStatusService {
   }
 
   async updateById(id: string, data: UpdateOrderStatusDto) {
-    console.log('DDD:', data.code);
     const isValidUUID = this.helpersService.isValidUUID(id);
 
     if (!isValidUUID) {
@@ -157,6 +168,20 @@ export class OrderStatusService {
       }
     }
 
+    // Check is init value
+    if (
+      this.helpersService.isInitOrderStatus(orderStatus.name, orderStatus.code)
+    ) {
+      throw new ConflictException(
+        this.helpersService.createResponse(
+          `Cannot update init order status: "${orderStatus.name}" - "${orderStatus.code}".`,
+          null,
+          'Conflict',
+          HttpStatusCodes.CONFLICT,
+        ),
+      );
+    }
+
     await this.orderStatusRepository.update(id, data);
     const resData = await this.orderStatusRepository.findOne({ where: { id } });
 
@@ -193,6 +218,20 @@ export class OrderStatusService {
           null,
           'Not found',
           HttpStatusCodes.NOT_FOUND,
+        ),
+      );
+    }
+
+    // Check is init value
+    if (
+      this.helpersService.isInitOrderStatus(orderStatus.name, orderStatus.code)
+    ) {
+      throw new ConflictException(
+        this.helpersService.createResponse(
+          `Cannot delete init order status: "${orderStatus.name}" - "${orderStatus.code}".`,
+          null,
+          'Conflict',
+          HttpStatusCodes.CONFLICT,
         ),
       );
     }

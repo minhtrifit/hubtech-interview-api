@@ -36,7 +36,7 @@ export class SupplierService {
       'Get all supplier successfully',
       {
         suppliers: resData,
-        total,
+        total: resData?.length,
         offset: skip,
         limit: take,
       },

@@ -7,6 +7,8 @@
 
 ## 📁 Documentation <a name="documentation"></a>
 
+Analysis Documentation: https://docs.google.com/document/d/1l9ed70dZfxSNuoAghPtr0Dgi6fwIWNUp10USfKutpQc/edit?usp=sharing
+
 Postman API Documentation: https://documenter.getpostman.com/view/34580780/2sAYHxp583
 
 ## 📦 Project setup <a name="project-setup"></a>

@@ -35,7 +35,7 @@ export class ProductService {
       'Get all product successfully',
       {
         products: resData,
-        total,
+        total: resData?.length,
         offset: skip,
         limit: take,
       },

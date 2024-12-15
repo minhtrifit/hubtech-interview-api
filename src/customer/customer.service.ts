@@ -36,7 +36,7 @@ export class CustomerService {
       'Get all customer successfully',
       {
         customers: resData,
-        total,
+        total: resData?.length,
         offset: skip,
         limit: take,
       },

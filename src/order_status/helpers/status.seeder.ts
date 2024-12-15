@@ -1,6 +1,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { OrderStatus } from '../entities/order_status.entity';
+import { STATUSES } from '@/constants';
 
 @Injectable()
 export class StatusSeeder implements OnApplicationBootstrap {
@@ -9,26 +10,7 @@ export class StatusSeeder implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     const repository = this.dataSource.getRepository(OrderStatus);
 
-    const statuses = [
-      {
-        name: 'Nhận đơn',
-        code: 'pending',
-      },
-      {
-        name: 'Soạn hàng',
-        code: 'preparing',
-      },
-      {
-        name: 'Giao hàng',
-        code: 'shipping',
-      },
-      {
-        name: 'Hoàn thành',
-        code: 'completed',
-      },
-    ];
-
-    for (const status of statuses) {
+    for (const status of STATUSES) {
       const exists = await repository.findOne({
         where: { name: status.name, code: status.code },
       });
