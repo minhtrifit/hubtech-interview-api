@@ -35,7 +35,7 @@ export class SupplierService {
     return this.helpersService.createResponse(
       'Get all supplier successfully',
       {
-        data: resData,
+        suppliers: resData,
         total,
         offset: skip,
         limit: take,
@@ -109,7 +109,7 @@ export class SupplierService {
     );
   }
 
-  async updateById(id: string, updateSupplierDto: UpdateSupplierDto) {
+  async updateById(id: string, data: UpdateSupplierDto) {
     const isValidUUID = this.helpersService.isValidUUID(id);
 
     if (!isValidUUID) {
@@ -136,7 +136,23 @@ export class SupplierService {
       );
     }
 
-    await this.supplierRepository.update(id, updateSupplierDto);
+    // Check is unique
+    const existingSupplier = await this.supplierRepository.findOne({
+      where: [{ email: data.email }, { phone: data.phone }],
+    });
+
+    if (existingSupplier) {
+      throw new ConflictException(
+        this.helpersService.createResponse(
+          'Email or phone is already exist',
+          null,
+          'Conflict',
+          HttpStatusCodes.CONFLICT,
+        ),
+      );
+    }
+
+    await this.supplierRepository.update(id, data);
     const resData = await this.supplierRepository.findOne({ where: { id } });
 
     return this.helpersService.createResponse(
@@ -177,7 +193,7 @@ export class SupplierService {
     const resData = await this.supplierRepository.delete(id);
 
     return this.helpersService.createResponse(
-      'Delete new supplier successfully',
+      'Delete supplier by id successfully',
       resData,
       null,
       HttpStatusCodes.CREATED,

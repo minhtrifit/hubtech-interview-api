@@ -35,5 +35,5 @@ npm install
 Run API project
 
 ```console
-run run start
+npm run start
 ```
