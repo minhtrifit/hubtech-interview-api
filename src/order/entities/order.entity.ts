@@ -1,8 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinTable,
+  ManyToMany,
+} from 'typeorm';
 import { BaseEntity } from '@/entities/base.entity';
 import { Supplier } from '@/supplier/entities/supplier.entity';
 import { Customer } from '@/customer/entities/customer.entity';
 import { OrderStatus } from '@/order_status/entities/order_status.entity';
+import { Product } from '@/product/entities/product.entity';
 
 @Entity('orders')
 export class Order extends BaseEntity {
@@ -18,6 +26,10 @@ export class Order extends BaseEntity {
   @ManyToOne(() => OrderStatus, (status) => status.id)
   status: OrderStatus;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @ManyToMany(() => Product, (product) => product.orders, { cascade: true })
+  @JoinTable()
+  products: Product[];
+
+  @Column('bigint')
   totalAmount: number;
 }
