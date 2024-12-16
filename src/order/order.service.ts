@@ -301,40 +301,80 @@ export class OrderService {
 
     const { supplierId, customerId, statusId, items } = data;
 
-    // Lấy order và các items liên quan
+    // Get order by id
     const order = await this.orderRepository.findOne({
       where: { id },
       relations: ['items'],
     });
 
     if (!order) {
-      throw new NotFoundException('Order not found');
+      throw new NotFoundException(
+        this.helpersService.createResponse(
+          'Order not found',
+          null,
+          'Not found',
+          HttpStatusCodes.NOT_FOUND,
+        ),
+      );
     }
 
-    // Kiểm tra và cập nhật supplier
+    // Check & update supplier
     if (supplierId) {
       const supplier = await this.supplierRepository.findOneBy({
         id: supplierId,
       });
-      if (!supplier) throw new NotFoundException('Supplier not found');
+
+      if (!supplier) {
+        throw new NotFoundException(
+          this.helpersService.createResponse(
+            'Supplier not found',
+            null,
+            'Not found',
+            HttpStatusCodes.NOT_FOUND,
+          ),
+        );
+      }
+
       order.supplier = supplier;
     }
 
-    // Kiểm tra và cập nhật customer
+    // Check & update customer
     if (customerId) {
       const customer = await this.customerRepository.findOneBy({
         id: customerId,
       });
-      if (!customer) throw new NotFoundException('Customer not found');
+
+      if (!customer) {
+        throw new NotFoundException(
+          this.helpersService.createResponse(
+            'Customer not found',
+            null,
+            'Not found',
+            HttpStatusCodes.NOT_FOUND,
+          ),
+        );
+      }
+
       order.customer = customer;
     }
 
-    // Kiểm tra và cập nhật status
+    // Check & update status
     if (statusId) {
       const status = await this.statusRepository.findOneBy({
         id: statusId,
       });
-      if (!status) throw new NotFoundException('Order status not found');
+
+      if (!status) {
+        throw new NotFoundException(
+          this.helpersService.createResponse(
+            'Status not found',
+            null,
+            'Not found',
+            HttpStatusCodes.NOT_FOUND,
+          ),
+        );
+      }
+
       order.status = status;
     }
 
