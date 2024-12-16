@@ -1,6 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 import { Order } from '@/order/entities/order.entity';
 import { BaseEntity } from '@/entities/base.entity';
+import { OrderItem } from '@/order/entities/order_item.entity';
 
 @Entity('products')
 export class Product extends BaseEntity {
@@ -16,6 +23,6 @@ export class Product extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @ManyToMany(() => Order, (order) => order.products)
-  orders: Order[];
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  orderItems: OrderItem[];
 }

@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsUUID, IsArray, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsUUID,
+  IsArray,
+  IsNumber,
+  IsPositive,
+  IsInt,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateOrderDto {
   @IsNotEmpty()
@@ -14,10 +23,18 @@ export class CreateOrderDto {
   statusId: string;
 
   @IsArray()
-  @IsUUID('all', { each: true })
-  productIds: string[];
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemDto)
+  items: CreateOrderItemDto[];
+}
+
+export class CreateOrderItemDto {
+  @IsNotEmpty()
+  @IsUUID()
+  productId: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  totalAmount: number;
+  @IsInt()
+  @IsPositive()
+  quantity: number;
 }

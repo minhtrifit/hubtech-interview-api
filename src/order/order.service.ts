@@ -14,6 +14,7 @@ import { Customer } from '@/customer/entities/customer.entity';
 import { OrderStatus } from '@/order_status/entities/order_status.entity';
 import { Product } from '@/product/entities/product.entity';
 import { HttpStatusCodes } from '@/utils';
+import { OrderItem } from './entities/order_item.entity';
 
 @Injectable()
 export class OrderService {
@@ -27,6 +28,8 @@ export class OrderService {
     @InjectRepository(OrderStatus)
     private statusRepository: Repository<OrderStatus>,
     @InjectRepository(Product) private productRepository: Repository<Product>,
+    @InjectRepository(OrderItem)
+    private orderItemRepository: Repository<OrderItem>,
     private readonly helpersService: HelpersService,
   ) {}
 
@@ -40,7 +43,7 @@ export class OrderService {
       order: {
         createdAt: 'DESC',
       },
-      relations: ['supplier', 'customer', 'status', 'products'],
+      relations: ['supplier', 'customer', 'status', 'items', 'items.product'],
     });
 
     return this.helpersService.createResponse(
@@ -72,7 +75,7 @@ export class OrderService {
 
     const resData = await this.orderRepository.findOne({
       where: { id },
-      relations: ['supplier', 'customer', 'status', 'products'],
+      relations: ['supplier', 'customer', 'status', 'items', 'items.product'],
     });
 
     if (!resData) {
@@ -119,7 +122,7 @@ export class OrderService {
       where: { supplier: { id: id } },
       skip: skip,
       take: take,
-      relations: ['supplier', 'customer', 'products', 'status'],
+      relations: ['supplier', 'customer', 'status', 'items', 'items.product'],
       order: {
         createdAt: 'DESC',
       },
@@ -163,7 +166,7 @@ export class OrderService {
       where: { customer: { id: id } },
       skip: skip,
       take: take,
-      relations: ['supplier', 'customer', 'products', 'status'],
+      relations: ['supplier', 'customer', 'status', 'items', 'items.product'],
       order: {
         createdAt: 'DESC',
       },
@@ -198,7 +201,7 @@ export class OrderService {
 
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['supplier', 'customer', 'status', 'products'],
+      relations: ['supplier', 'customer', 'status', 'items', 'items.product'],
     });
 
     if (!order) throw new NotFoundException('Order not found');
@@ -207,7 +210,7 @@ export class OrderService {
   }
 
   async create(data: CreateOrderDto) {
-    const { supplierId, customerId, statusId, productIds, totalAmount } = data;
+    const { supplierId, customerId, statusId, items } = data;
 
     // Check supplier
     const supplier = await this.supplierRepository.findOneBy({
@@ -230,21 +233,56 @@ export class OrderService {
 
     // Check products
     const products = await this.productRepository.find({
-      where: productIds.map((id) => ({ id })),
+      where: items.map((item) => ({ id: item.productId })),
     });
 
-    if (products.length !== productIds.length)
+    if (products.length !== items.length)
       throw new NotFoundException('One or more products not found');
 
+    let totalPrice = 0;
+
+    const orderItems = items.map((item) => {
+      const product = products.find((p) => p.id === item.productId);
+      if (!product)
+        throw new NotFoundException(`Product ${item.productId} not found`);
+
+      const subTotal = product.price * item.quantity;
+      totalPrice += subTotal;
+
+      return {
+        order: null,
+        product: { id: item.productId },
+        quantity: item.quantity,
+        subtotal: subTotal,
+      };
+    });
+
+    // Create new order
     const order = this.orderRepository.create({
       supplier,
       customer,
       status,
-      products,
-      totalAmount,
+      totalPrice,
     });
 
-    return this.orderRepository.save(order);
+    // Save order
+    const newOrder = await this.orderRepository.save(order);
+
+    // Save order items
+    orderItems.forEach((orderItem) => (orderItem.order = newOrder));
+    await this.orderItemRepository.save(orderItems);
+
+    const resData = await this.orderRepository.findOne({
+      where: { id: newOrder.id },
+      relations: ['supplier', 'customer', 'status', 'items', 'items.product'],
+    });
+
+    return this.helpersService.createResponse(
+      'Create new order successfully',
+      resData,
+      null,
+      HttpStatusCodes.CREATED,
+    );
   }
 
   async updateById(id: string, data: UpdateOrderDto) {
@@ -261,60 +299,93 @@ export class OrderService {
       );
     }
 
-    const { supplierId, customerId, statusId, productIds, totalAmount } = data;
-    const order = await this.findOne(id);
+    const { supplierId, customerId, statusId, items } = data;
 
-    // Check supplier
+    // Lấy order và các items liên quan
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['items'],
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Kiểm tra và cập nhật supplier
     if (supplierId) {
       const supplier = await this.supplierRepository.findOneBy({
         id: supplierId,
       });
-
       if (!supplier) throw new NotFoundException('Supplier not found');
-
       order.supplier = supplier;
     }
 
-    // Check customer
-    if (supplierId) {
+    // Kiểm tra và cập nhật customer
+    if (customerId) {
       const customer = await this.customerRepository.findOneBy({
         id: customerId,
       });
-
       if (!customer) throw new NotFoundException('Customer not found');
-
       order.customer = customer;
     }
 
-    // Check status
+    // Kiểm tra và cập nhật status
     if (statusId) {
       const status = await this.statusRepository.findOneBy({
         id: statusId,
       });
-
       if (!status) throw new NotFoundException('Order status not found');
-
       order.status = status;
     }
 
-    // Check products
-    if (productIds) {
+    if (items && items?.length > 0) {
+      // Delete old order items
+      await this.orderItemRepository.delete({ order: { id: order.id } });
+
+      // Check products
       const products = await this.productRepository.find({
-        where: productIds.map((id) => ({ id })),
+        where: items.map((item) => ({ id: item.productId })),
       });
 
-      if (products.length !== productIds.length)
-        throw new NotFoundException('Some products not found');
+      if (products.length !== items.length) {
+        throw new NotFoundException('One or more products not found');
+      }
 
-      order.products = products;
+      // Create new order items
+      let totalPrice = 0;
+
+      const newOrderItems = items.map((item) => {
+        const product = products.find((p) => p.id === item.productId);
+
+        if (!product) {
+          throw new NotFoundException(`Product ${item.productId} not found`);
+        }
+
+        const subTotal = product.price * item.quantity;
+        totalPrice += subTotal;
+
+        return this.orderItemRepository.create({
+          order,
+          product,
+          quantity: item.quantity,
+          subtotal: subTotal,
+        });
+      });
+
+      // Save new order items
+      await this.orderItemRepository.save(newOrderItems);
+
+      order.items = newOrderItems;
+      order.totalPrice = totalPrice;
     }
 
-    // Check totalAmount
-    if (totalAmount !== undefined) {
-      order.totalAmount = totalAmount;
-    }
+    // Save new order
+    await this.orderRepository.save(order);
 
-    const resData = await this.orderRepository.save(order);
+    const resData = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['supplier', 'customer', 'status', 'items', 'items.product'],
+    });
 
     return this.helpersService.createResponse(
       'Update order by id successfully',
@@ -351,6 +422,10 @@ export class OrderService {
       );
     }
 
+    // Delete order items
+    await this.orderItemRepository.delete({ order: { id } });
+
+    // Delete order
     const resData = await this.orderRepository.remove(order);
 
     return this.helpersService.createResponse(
