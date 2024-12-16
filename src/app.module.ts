@@ -8,6 +8,7 @@ import { CustomerModule } from './customer/customer.module';
 import { SupplierModule } from './supplier/supplier.module';
 import { OrderStatusModule } from './order_status/order_status.module';
 import { ProductModule } from './product/product.module';
+import { InventoryModule } from './inventory/inventory.module';
 import entities from './entities';
 
 @Module({
@@ -33,6 +34,7 @@ import entities from './entities';
     SupplierModule,
     OrderStatusModule,
     ProductModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

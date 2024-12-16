@@ -8,6 +8,7 @@ import {
 import { Order } from '@/order/entities/order.entity';
 import { BaseEntity } from '@/entities/base.entity';
 import { OrderItem } from '@/order/entities/order_item.entity';
+import { InventoryItem } from '@/inventory/entities/inventory_item.entity';
 
 @Entity('products')
 export class Product extends BaseEntity {
@@ -25,4 +26,7 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
+
+  @OneToMany(() => InventoryItem, (inventoryItem) => inventoryItem.product)
+  inventoryItems: InventoryItem[];
 }

@@ -31,6 +31,9 @@ export class Order extends BaseEntity {
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
   items: OrderItem[];
 
+  @Column({ default: '' })
+  address: string;
+
   @Column('decimal', { default: 0 })
   totalPrice: number;
 }

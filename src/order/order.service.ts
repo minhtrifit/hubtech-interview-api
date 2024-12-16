@@ -210,7 +210,7 @@ export class OrderService {
   }
 
   async create(data: CreateOrderDto) {
-    const { supplierId, customerId, statusId, items } = data;
+    const { supplierId, customerId, statusId, address, items } = data;
 
     // Check supplier
     const supplier = await this.supplierRepository.findOneBy({
@@ -262,6 +262,7 @@ export class OrderService {
       supplier,
       customer,
       status,
+      address,
       totalPrice,
     });
 
@@ -299,7 +300,7 @@ export class OrderService {
       );
     }
 
-    const { supplierId, customerId, statusId, items } = data;
+    const { supplierId, customerId, statusId, address, items } = data;
 
     // Get order by id
     const order = await this.orderRepository.findOne({
@@ -376,6 +377,11 @@ export class OrderService {
       }
 
       order.status = status;
+    }
+
+    // Check address
+    if (address && address !== '') {
+      order.address = address;
     }
 
     if (items && items?.length > 0) {

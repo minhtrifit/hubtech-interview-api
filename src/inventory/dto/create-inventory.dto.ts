@@ -10,30 +10,22 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreateOrderDto {
+export class CreateInventoryDto {
   @IsNotEmpty()
   @IsUUID()
   supplierId: string;
 
   @IsNotEmpty()
-  @IsUUID()
-  customerId: string;
-
-  @IsNotEmpty()
-  @IsUUID()
-  statusId: string;
-
-  @IsNotEmpty()
   @IsString()
-  address: string;
+  location: string;
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateOrderItemDto)
-  items: CreateOrderItemDto[];
+  @Type(() => CreateInventoryItemDto)
+  items: CreateInventoryItemDto[];
 }
 
-export class CreateOrderItemDto {
+export class CreateInventoryItemDto {
   @IsNotEmpty()
   @IsUUID()
   productId: string;

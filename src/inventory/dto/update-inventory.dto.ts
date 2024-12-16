@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateOrderDto } from './create-order.dto';
+import { CreateInventoryDto } from './create-inventory.dto';
 import {
   IsArray,
   IsInt,
@@ -12,31 +12,22 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class UpdateOrderDto extends PartialType(CreateOrderDto) {
+export class UpdateInventoryDto extends PartialType(CreateInventoryDto) {
   @IsOptional()
   @IsUUID()
   supplierId?: string;
 
   @IsOptional()
-  @IsUUID()
-  customerId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  statusId?: string;
-
-  @IsOptional()
   @IsString()
-  address?: string;
+  location?: string;
 
-  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => UpdateOrderItemDto)
-  items?: UpdateOrderItemDto[];
+  @Type(() => UpdateInventoryItemDto)
+  items?: UpdateInventoryItemDto[];
 }
 
-export class UpdateOrderItemDto {
+export class UpdateInventoryItemDto {
   @IsNotEmpty()
   @IsUUID()
   productId: string;
