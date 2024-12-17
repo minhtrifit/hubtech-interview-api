@@ -4,6 +4,7 @@ import { InventoryItem } from '@/inventory/entities/inventory_item.entity';
 import { Order } from '@/order/entities/order.entity';
 import { OrderItem } from '@/order/entities/order_item.entity';
 import { OrderStatus } from '@/order_status/entities/order_status.entity';
+import { PaymentMethod } from '@/payment_method/entities/payment_method.entity';
 import { Product } from '@/product/entities/product.entity';
 import { Supplier } from '@/supplier/entities/supplier.entity';
 
@@ -16,6 +17,7 @@ const entities = [
   OrderItem,
   Inventory,
   InventoryItem,
+  PaymentMethod,
 ];
 
 export default entities;

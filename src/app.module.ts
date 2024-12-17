@@ -9,6 +9,7 @@ import { SupplierModule } from './supplier/supplier.module';
 import { OrderStatusModule } from './order_status/order_status.module';
 import { ProductModule } from './product/product.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { PaymentMethodModule } from './payment_method/payment_method.module';
 import entities from './entities';
 
 @Module({
@@ -35,6 +36,7 @@ import entities from './entities';
     OrderStatusModule,
     ProductModule,
     InventoryModule,
+    PaymentMethodModule,
   ],
   controllers: [AppController],
   providers: [AppService],
