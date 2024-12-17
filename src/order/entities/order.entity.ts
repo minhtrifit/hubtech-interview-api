@@ -6,6 +6,7 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import { BaseEntity } from '@/entities/base.entity';
 import { Supplier } from '@/supplier/entities/supplier.entity';
@@ -13,6 +14,7 @@ import { Customer } from '@/customer/entities/customer.entity';
 import { OrderStatus } from '@/order_status/entities/order_status.entity';
 import { Product } from '@/product/entities/product.entity';
 import { OrderItem } from './order_item.entity';
+import { Payment } from '@/payment/entities/payment.entity';
 
 @Entity('orders')
 export class Order extends BaseEntity {
@@ -36,4 +38,7 @@ export class Order extends BaseEntity {
 
   @Column('decimal', { default: 0 })
   totalPrice: number;
+
+  @OneToOne(() => Payment, (payment) => payment.order, { cascade: true })
+  payment: Payment;
 }
